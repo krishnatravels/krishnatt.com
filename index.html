@@ -263,61 +263,34 @@
             background-color: #e05626;
         }
 
-        /* Success Message Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-box {
-            background-color: var(--white);
-            padding: 2.5rem;
-            border-radius: 8px;
-            max-width: 450px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .modal-box h4 {
-            color: var(--secondary);
-            font-size: 1.6rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .modal-box p {
-            color: #555;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-        }
-
-        .modal-close-btn {
-            background-color: var(--secondary);
-            color: var(--white);
-            border: none;
-            padding: 0.6rem 2rem;
+        /* Inline Form Notification Alert Styles */
+        #formResult {
+            margin-top: 1.5rem;
+            padding: 1rem;
             border-radius: 4px;
             font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
+            text-align: center;
+            display: none;
         }
-
-        .modal-close-btn:hover {
-            background-color: var(--dark);
+        
+        .status-loading {
+            display: block !important;
+            background-color: #e2f0d9;
+            color: var(--secondary);
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        
+        .status-success {
+            display: block !important;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            display: block !important;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         /* Footer Alignment */
@@ -358,7 +331,6 @@
 
     <!-- Navigation Header -->
     <nav>
-        <!-- Added logo layout right before the text block inside navigation -->
         <div class="logo"><img src="logo-ktt.png" alt="KTT Logo">KRISHNA<span>TRAVELS</span></div>
         <ul class="nav-links">
             <li><a href="#about">About Us</a></li>
@@ -384,7 +356,6 @@
 
         <!-- Services Section -->
         <section id="services">
-            <!-- Added logo entry element matching offerings introduction natively -->
             <div class="middle-logo-container">
                 <img src="logo-ktt.png" alt="Krishna Travels Token">
             </div>
@@ -447,22 +418,26 @@
             </div>
         </section>
 
-        <!-- Bookings Form Section -->
+        <!-- Contact Form Section -->
         <section id="bookings">
             <h2 class="section-title">Get In Touch</h2>
             <div class="booking-section">
-                <form id="travelForm" onsubmit="sendEmail(event)">
+                <!-- Form targeting Web3Forms background API routing engine -->
+                <form id="contactForm">
+                    <!-- Integrated your unique Web3Forms Access Key here -->
+                    <input type="hidden" name="access_key" value="6bd7ae52-5f6f-4ae5-b4b4-37665730adfb">
+
                     <div class="form-group">
                         <label for="name">Your Name</label>
-                        <input type="text" id="name" required placeholder="Full Name">
+                        <input type="text" name="name" id="name" required placeholder="Full Name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" required placeholder="name@example.com">
+                        <input type="email" name="email" id="email" required placeholder="name@example.com">
                     </div>
                     <div class="form-group">
                         <label for="service">Select Service (Optional)</label>
-                        <select id="service">
+                        <select name="service" id="service">
                             <option value="Not Specified" selected>Select an option (or leave blank)</option>
                             <option value="White Water Rafting">White Water Rafting</option>
                             <option value="Tandem Paragliding">Tandem Paragliding</option>
@@ -476,65 +451,58 @@
                     </div>
                     <div class="form-group">
                         <label for="message">Your Message</label>
-                        <textarea id="message" rows="5" required placeholder="How can we help you? Let us know your requirements..."></textarea>
+                        <textarea name="message" id="message" rows="5" required placeholder="How can we help you? Let us know your requirements..."></textarea>
                     </div>
                     <button type="submit" class="submit-btn">Send Message</button>
                 </form>
+                
+                <!-- Status container target interface element -->
+                <div id="formResult"></div>
             </div>
         </section>
 
     </main>
 
-    <!-- Interactive Status Confirmation Message Overlay Component -->
-    <div id="successModal" class="modal-overlay">
-        <div class="modal-box">
-            <h4>Thank You!</h4>
-            <p>Your message outline has been generated. If your external email application didn't open automatically, please complete the send action manually.</p>
-            <button class="modal-close-btn" onclick="closeModal()">Close</button>
-        </div>
-    </div>
-
-    <!-- Script to handle Form-to-Email execution smoothly -->
+    <!-- Script to handle Form-to-Email execution smoothly via async AJAX threads -->
     <script>
-        function sendEmail(e) {
+        const form = document.getElementById('contactForm');
+        const result = document.getElementById('formResult');
+
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            var name = document.getElementById('name').value;
-            var email = document.getElementById('email').value;
-            var service = document.getElementById('service').value;
-            var message = document.getElementById('message').value;
+            // Set dynamic loading classes natively
+            result.className = "status-loading";
+            result.innerHTML = "Sending your message...";
             
-            var emailTo = "info@krishnatt.com";
-            var subject = encodeURIComponent("Inquiry from " + name);
+            const formData = new FormData(form);
             
-            var bodyText = "Hello Krishna Travels,\n\n" +
-                           "You have received a new website inquiry:\n\n" +
-                           "Sender Name: " + name + "\n" +
-                           "Sender Email: " + email + "\n" +
-                           "Interested Service: " + service + "\n\n" +
-                           "Message Details:\n" + message + "\n\n" +
-                           "--- Sent via krishnatt.com web portal ---";
-                           
-            var body = encodeURIComponent(bodyText);
-            
-            // Displays visual user feedback on-screen instantly
-            document.getElementById('successModal').style.display = 'flex';
-            
-            // Triggers external mail architecture processing thread safely
-            window.location.href = "mailto:" + emailTo + "?subject=" + subject + "&body=" + body;
-            
-            // Soft reset to clean input buffer surfaces
-            document.getElementById('travelForm').reset();
-        }
-
-        function closeModal() {
-            document.getElementById('successModal').style.display = 'none';
-        }
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async (response) => {
+                let json = await response.json();
+                if (response.status == 200) {
+                    result.className = "status-success";
+                    result.innerHTML = "Thank you! Your message has been sent successfully.";
+                    form.reset();
+                } else {
+                    console.log(response);
+                    result.className = "status-error";
+                    result.innerHTML = json.message || "Something went wrong. Please try again.";
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                result.className = "status-error";
+                result.innerHTML = "Network error. Please check your internet connection.";
+            });
+        });
     </script>
 
     <!-- Document Footer -->
     <footer>
-        <!-- Placed logo tag horizontally aligned right before the target copyright string block -->
         <p class="footer-line"><img src="logo-ktt.png" alt="KTT Small Logo"><span>&copy; 2026 Krishna Travels | krishnatt.com. All Rights Reserved.</span></p>
         <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #666;">Registered Tour & Travel operator based in Rishikesh, Uttarakhand, India.</p>
     </footer>
